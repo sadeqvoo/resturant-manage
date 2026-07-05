@@ -2,7 +2,7 @@
 #define DATABASEMANAGER_H
 
 #include "../sqlite3.h" 
-#include "restaurant.h"
+#include "../models/restaurant.h"
 #include <string>
 #include <vector>
 #include <memory>

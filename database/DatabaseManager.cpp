@@ -3,11 +3,13 @@
 
 DatabaseManager::DatabaseManager() : db(nullptr) {}
 
-DatabaseManager::~DatabaseManager() {
+DatabaseManager::~DatabaseManager() 
+{
     closeDatabase();
 }
 
-bool DatabaseManager::openDatabase(const std::string& dbName) {
+bool DatabaseManager::openDatabase(const std::string& dbName) 
+{
     int exit = sqlite3_open(dbName.c_str(), &db);
     
     if (exit) { 
