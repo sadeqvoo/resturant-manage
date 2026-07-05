@@ -67,7 +67,17 @@ void DatabaseManager::createTables() {
         "item_name TEXT, "
         "quantity INTEGER);";
 
+        
+    std::string sql_users = 
+        "CREATE TABLE IF NOT EXISTS users ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+        "username TEXT NOT NULL, "
+        "password TEXT NOT NULL, "
+        "role TEXT NOT NULL, "            
+        "points INTEGER DEFAULT 0, "        
+        "current_level TEXT DEFAULT 'Normal');"; 
 
+    
     int exit = sqlite3_exec(db, sql_restaurants.c_str(), NULL, 0, &messageError);
     if (exit != SQLITE_OK) {
         std::cerr << "Error Create Restaurants Table: " << messageError << std::endl;
@@ -91,6 +101,13 @@ void DatabaseManager::createTables() {
         std::cerr << "Error Create Order Items Table: " << messageError << std::endl;
         sqlite3_free(messageError);
     }
+    
+    exit = sqlite3_exec(db, sql_users.c_str(), NULL, 0, &messageError);
+    if (exit != SQLITE_OK) {
+        std::cerr << "Error Create Restaurants Table: " << messageError << std::endl;
+        sqlite3_free(messageError);
+    }
+
 
     std::cout << "All Tables Checked/Created successfully!" << std::endl;
 }
