@@ -18,18 +18,19 @@ class order
     int ID ;
     OrderStatus status;
     int restaurantID; 
-    std::vector<cartitem> orderItem ;
+    cart orderItem ;
     double totalAmount ;
 
     public:
-    order(int ID1 , OrderStatus status1 , std::vector<cartitem> orderItem1 , double totalAmount1) ;
+    order(int ID1 , OrderStatus status1,int restaurantID1 , cart orderItem1 , double totalAmount1) ;
     ~order() = default ;
 
     int getID() const {return ID ;}
+    int getRestaurantID() const { return restaurantID; }
     OrderStatus getStatus() const {return status ;}
     std::string getStatusString() const ; 
     double gettotalAmount() const {return totalAmount ;}
-    const std::vector<cartitem> & getorderItem () const {return orderItem ;} 
+     cart & getorderItem () {return orderItem ;} 
     
     void displayOrderDetails() const ;
 

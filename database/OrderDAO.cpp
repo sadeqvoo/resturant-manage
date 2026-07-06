@@ -24,7 +24,7 @@ static int orderItemsCallback(void* data, int argc, char** argv, char** azColNam
     std::string itemName = argv[1] ? argv[1] : "";
     int quantity = argv[2] ? std::stoi(argv[2]) : 0;
 
-    (*currentOrder)->addItem(itemName, quantity);
+    (*currentOrder)->getorderItem().addtocart(itemName, quantity);
 
     return 0;
 }
@@ -37,9 +37,9 @@ bool OrderDAO::insertOrder(std::shared_ptr<order> newOrder) {
     char* messageError = nullptr;
 
     std::string sql_orders = "INSERT INTO orders (order_id, restaurant_id, total_amount, status) VALUES ("
-                             + std::to_string(newOrder->getOrderID()) + ", "
+                             + std::to_string(newOrder->getID()) + ", "
                              + std::to_string(newOrder->getRestaurantID()) + ", "
-                             + std::to_string(newOrder->getTotalPrice()) + ", 0);";
+                             + std::to_string(newOrder->gettotalAmount()) + ", 0);";
 
     int exit = sqlite3_exec(db, sql_orders.c_str(), NULL, 0, &messageError);
     
@@ -49,21 +49,21 @@ bool OrderDAO::insertOrder(std::shared_ptr<order> newOrder) {
         return false; 
     }
 
-    for (const auto& item : newOrder->getCartItems()) {
+    for (const auto& item : newOrder->getorderItem().getorderItem()) {
         std::string sql_items = "INSERT INTO order_items (order_id, item_name, quantity) VALUES ("
-                                + std::to_string(newOrder->getOrderID()) + ", '"
-                                + item.getName() + "', "
-                                + std::to_string(item.getQuantity()) + ");";
-
+                                + std::to_string(newOrder->getID()) + ", '"
+                                + item.item->getname() + "', "
+                                + std::to_string(item.number) + ");";
+    
         exit = sqlite3_exec(db, sql_items.c_str(), NULL, 0, &messageError);
         
         if (exit != SQLITE_OK) {
-            std::cerr << "Error Insert Order Item (" << item.getName() << "): " << messageError << std::endl;
+            std::cerr << "Error Insert Order Item (" << item.item->getname() << "): " << messageError << std::endl;
             sqlite3_free(messageError);
         }
     }
 
-    std::cout << "Order #" << newOrder->getOrderID() << " saved successfully!" << std::endl;
+    std::cout << "Order #" << newOrder->getID() << " saved successfully!" << std::endl;
     return true;
 }
 
@@ -100,12 +100,12 @@ std::vector<std::shared_ptr<order>> OrderDAO::getOrdersForRestaurant(int restaur
     }
 
     for (auto& ord : ordersList) {
-        std::string sql_select_items = "SELECT * FROM order_items WHERE order_id = " + std::to_string(ord->getOrderID()) + ";";
+        std::string sql_select_items = "SELECT * FROM order_items WHERE order_id = " + std::to_string(ord->getID()) + ";";
 
         exit = sqlite3_exec(db, sql_select_items.c_str(), orderItemsCallback, &ord, &messageError);
 
         if (exit != SQLITE_OK) {
-            std::cerr << "Error Select Order Items for ID " << ord->getOrderID() << ": " << messageError << std::endl;
+            std::cerr << "Error Select Order Items for ID " << ord->getID() << ": " << messageError << std::endl;
             sqlite3_free(messageError);
         }
     }
@@ -128,12 +128,12 @@ std::vector<std::shared_ptr<order>> OrderDAO::getAllOrdersForCustomer() {
     }
 
     for (auto& ord : ordersList) {
-        std::string sql_select_items = "SELECT * FROM order_items WHERE order_id = " + std::to_string(ord->getOrderID()) + ";";
+        std::string sql_select_items = "SELECT * FROM order_items WHERE order_id = " + std::to_string(ord->getID()) + ";";
 
         exit = sqlite3_exec(db, sql_select_items.c_str(), orderItemsCallback, &ord, &messageError);
 
         if (exit != SQLITE_OK) {
-            std::cerr << "Error Select Order Items for ID " << ord->getOrderID() << ": " << messageError << std::endl;
+            std::cerr << "Error Select Order Items for ID " << ord->getID() << ": " << messageError << std::endl;
             sqlite3_free(messageError);
         }
     }

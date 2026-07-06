@@ -1,20 +1,20 @@
 #include "order.h"
 #include <iostream>
 
-order(int ID1 , OrderStatus status1 , std::vector<cartitem> orderItem1 , double totalAmount1) :
-ID(ID1) , status(status1) , orderItem(orderItem1) , totalAmount(totalAmount1) {}
+order::order(int ID1 , OrderStatus status1 , int restaurantID1 , cart orderItem1 , double totalAmount1) :
+ID(ID1) , status(status1) ,restaurantID(restaurantID1), orderItem(orderItem1) , totalAmount(totalAmount1) {}
 
 std::string order::getStatusString() const
 {
-    if (status = Preparing)
+    if (status == preparing)
     {
         return "preparing" ;
     }
-    else if(status = ReadyForShipping) 
+    else if(status == ReadyForShipping) 
     {
         return "ReadyForShipping" ;
     }
-    else if (statuse = Delivered)
+    else if (status == Delivered)
     {
         return "Delivered" ;
     } 
