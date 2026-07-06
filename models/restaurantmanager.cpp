@@ -11,17 +11,17 @@ void restaurantmanager::displayMenu() const
         return;
     }
     std::cout << "\n=========================================\n";
-    std::cout << "   Management Menu of: " << managedRestaurant->getName() << std::endl;
+    std::cout << "   Management Menu of: " << managedRestaurant->getname() << std::endl;
     std::cout << "=========================================\n";
     
     managedRestaurant->displayMenu();
 }
 
-void restaurantmanager::addMenuItem(const std::string& id, const std::string& name, const std::string& desc, double price, int cookingTime)
+void restaurantmanager::addFoodItem(const std::string& id, const std::string& name, const std::string& desc, double price, int cookingTime)
 {
     if (managedRestaurant == nullptr) return;
     auto newFood = std::make_shared<food>(id, name, desc, price, true, cookingTime);
-    managedRestaurant->getMenu().push_back(newFood);
+    managedRestaurant->addItemToMenu(newFood);
     std::cout << "\n[Manager] Food item '" << name << "' successfully added to the menu.\n";
 }
 
@@ -30,7 +30,7 @@ void restaurantmanager::addBeverageItem(const std::string& id, const std::string
 
     auto newBeverage = std::make_shared<beverage>(id, name, desc, price, true, volume);
     
-    managedRestaurant->getMenu().push_back(newBeverage);
+    managedRestaurant->addItemToMenu(newBeverage);
     std::cout << "\n[Manager] Beverage item '" << name << "' successfully added to the menu.\n";
 }
 
@@ -41,7 +41,7 @@ void restaurantmanager::removeMenuItem(const std::string& name)
     auto& menu = managedRestaurant->getMenu();
     for (size_t i = 0; i < menu.size(); ++i) {
         if (menu[i] != nullptr && menu[i]->getname() == name) {
-            menu.erase(menu.begin() + i);
+            managedRestaurant->removeItemFromMenu(menu[i]->getID());
             std::cout << "\n[Manager] '" << name << "' has been permanently removed from the menu.\n";
             return;
         }
@@ -110,7 +110,7 @@ void restaurantmanager::displayActiveOrders() const
         
         std::cout << "  Items to Prepare:\n";
         
-        auto items = activeOrders[i].getorderItem(); 
+    auto items = activeOrders[i].getorderItem().getorderItem();
         for (size_t j = 0; j < items.size(); ++j) {
             if (items[j].item != nullptr) {
                 std::cout << "    - " << items[j].item->getname() << "  [Quantity: " << items[j].number << "]\n";
@@ -119,12 +119,12 @@ void restaurantmanager::displayActiveOrders() const
         std::cout << "-----------------------------------------\n";
     }
 }
-void restaurantmanager::updateOrderStatus(int orderId, int newStatus)
+void restaurantmanager::updateOrderStatus(int orderId, std::string newStatus)
 {
     for (size_t i = 0; i < activeOrders.size(); ++i) {
         if (activeOrders[i].getID() == orderId) 
         {
-            activeOrders[i].setstatus(newStatus); 
+            activeOrders[i].setStatus(newStatus); 
             
             std::cout << "\n[Manager] Order " << orderId << " status successfully changed in system.\n";
             return;

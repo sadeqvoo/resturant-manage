@@ -3,7 +3,6 @@
 
 MenuDAO::MenuDAO(sqlite3* databasePointer) : db(databasePointer) {}
 
-getprice
 bool MenuDAO::insertMenuItem(std::shared_ptr<menuitem> item, int restaurantID) {
     if (item == nullptr) return false;
 
@@ -57,6 +56,28 @@ bool MenuDAO::deleteMenuItem(const std::string& itemID) {
         return false;
     } else {
         std::cout << "Menu item deleted successfully!" << std::endl;
+        return true;
+    }
+}
+
+bool MenuDAO::updateMenuItem(const std::string& itemID, double newPrice, const std::string& newDesc, bool isAvailable) {
+    char* messageError = nullptr;
+    int availableInt = isAvailable ? 1 : 0;
+
+    std::string sql = "UPDATE menu_items SET "
+                      "price = " + std::to_string(newPrice) + ", "
+                      "description = '" + newDesc + "', "
+                      "is_available = " + std::to_string(availableInt) + " "
+                      "WHERE id = '" + itemID + "';";
+
+    int exit = sqlite3_exec(db, sql.c_str(), NULL, 0, &messageError);
+    
+    if (exit != SQLITE_OK) {
+        std::cerr << "Error Update Menu Item: " << messageError << std::endl;
+        sqlite3_free(messageError);
+        return false;
+    } else {
+        std::cout << "Menu item ID '" << itemID << "' updated successfully!" << std::endl;
         return true;
     }
 }

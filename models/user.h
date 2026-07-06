@@ -12,10 +12,10 @@ class user
     public:
     user (std::string rolename ) ;
 
-    virtual ~user = default ;
+    virtual ~user() = default ;
     std::string getrole() const ;
 
-    virtual void displaymeno () = 0 const ;
+    virtual void displaymeno () = 0  ;
 };
 
 

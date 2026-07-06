@@ -36,7 +36,7 @@ void customer::handleMenu(const std::vector<std::shared_ptr<restaurant>>& allRes
         std::cout << "\033[2J\033[H";
 
         std::cout << "\n========= CUSTOMER MENU =========\n" ;
-        std::cout << "Role: " << getRolename() << std::endl ;
+        std::cout << "Role: " << getrole() << std::endl ;
         std::cout << "1. View Active Restaurants & Order Food\n" ;
         std::cout << "2. View Current Cart (Live Total)\n" ;
         std::cout << "3. View Order History (Tarikhche)\n" ;
@@ -71,7 +71,7 @@ void customer::handleMenu(const std::vector<std::shared_ptr<restaurant>>& allRes
             std::cout << "\n--- Active Restaurants ---" << std::endl;
             for (size_t i = 0 ; i < allRestaurants.size(); i++) 
             {
-                std::cout << i + 1 << ". " << allRestaurants[i]->getName() << "\naddress:" << allRestaurants[i]->getaddress() <<"\npreparationTime:" <<allRestaurants[i]->getpreparationTime()
+                std::cout << i + 1 << ". " << allRestaurants[i]->getname() << "\naddress:" << allRestaurants[i]->getaddress() <<"\npreparationTime:" <<allRestaurants[i]->getpreparationTime()
                 << std::endl ;
             }
             std::cout << "0. Back to Customer Menu" << std::endl;
@@ -91,7 +91,7 @@ void customer::handleMenu(const std::vector<std::shared_ptr<restaurant>>& allRes
             while(true)
             {
                 std::cout << "\n=================================\n" ;
-                std::cout << "   Menu of: " << selectedRes->getName() << std::endl;
+                std::cout << "   Menu of: " << selectedRes->getname() << std::endl;
                 std::cout << "=================================" << std::endl;
 
                 selectedRes->displayMenu();
@@ -132,10 +132,13 @@ void customer::handleMenu(const std::vector<std::shared_ptr<restaurant>>& allRes
                 {
                     std::string itemName;
                     std::cout << "Enter Food/Beverage Name to remove: ";
+                 
+                    std::cout << "Enter number you want to remove: " ;   
+                    int a ;
                     std::cin.ignore();
                     std::getline(std::cin, itemName);
                     
-                    myCart.removefromcart(itemName); 
+                    myCart.removefromcart(itemName , a) ; 
                     std::cout << "\nItem process completed." << std::endl;
                 }
 
@@ -156,8 +159,9 @@ void customer::handleMenu(const std::vector<std::shared_ptr<restaurant>>& allRes
 
                     if (confirm == 1)
                     {
+                        int resID = selectedRes->getID();
                         int generatedOrderID = 2000 + orderHistory.size();
-                        order newOrder(generatedOrderID, OrderStatus::Preparing, myCart.getorderItem(), myCart.gettotalAmount());
+                        order newOrder(generatedOrderID, OrderStatus::Preparing,resID, myCart , myCart.gettotalAmount());
                         std::cout << "\n======================================\n" ;
                         std::cout << "   ORDER REGISTERED SUCCESSFULY!      \n" ;
                         std::cout << "   Your Order ID: " << newOrder.getID() << std::endl ;

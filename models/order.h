@@ -31,10 +31,11 @@ class order
     std::string getStatusString() const ; 
     double gettotalAmount() const {return totalAmount ;}
      cart & getorderItem () {return orderItem ;} 
-    
+    const cart & getorderItem () const {return orderItem ;} 
+
     void displayOrderDetails() const ;
 
-    void setStatus(OrderStatus newStatus);
+    void setStatus(std::string newStatus);
 };
 
 

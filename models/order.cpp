@@ -22,4 +22,10 @@ std::string order::getStatusString() const
 
 }
 
-void order::setStatus(OrderStatus newStatus) { status = newStatus; }
+void order::setStatus(std::string newStatus) 
+{ 
+    if (newStatus == "Preparing") status = OrderStatus::Preparing ;
+    if (newStatus == "ReadyForShipping") status = OrderStatus::ReadyForShipping ;
+    if (newStatus == "Delivered") status = OrderStatus::Delivered ;
+
+}

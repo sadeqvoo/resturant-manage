@@ -8,6 +8,9 @@
 #include "database/MenuDAO.h"
 #include "database/OrderDAO.h"
 
+#include "models/food.h"
+#include "models/beverage.h"
+
 using namespace std;
 
 int main() {
@@ -78,9 +81,9 @@ int main() {
                                     std::string statusStr = res->getisActive() ? "Active" : "Inactive";
                                     cout << "ID: " << res->getID() 
                                          << " | Name: " << res->getname() 
-                                         << " | Phone: " << res->getPhonenumber()
-                                         << " | Prep Time: " << res->getPreparationTime() << " mins"
-                                         << " | Address: " << res->getAddress()
+                                         << " | Phone: " << res->getphonenumber()
+                                         << " | Prep Time: " << res->getpreparationTime() << " mins"
+                                         << " | Address: " << res->getaddress()
                                          << " | Status: [" << statusStr << "]" << endl;
                                 }
                             }
@@ -145,7 +148,7 @@ int main() {
                             int totalOrdersCount = allOrders.size();
 
                             for (const auto& ord : allOrders) {
-                                totalSales += ord->getTotalPrice();
+                                totalSales += ord->gettotalAmount();
                             }
 
                             cout << ">> Total Registered Orders: " << totalOrdersCount << endl;
@@ -272,12 +275,12 @@ int main() {
                                     
                                     std::shared_ptr<menuitem> newItem = nullptr;
                                     if (itemType == ItemType::Food) {
-                                        newItem = std::make_shared<Food>(itemId, itemName, description, basePrice, itemType, true);
+                                        newItem = std::make_shared<food>(itemId, itemName, description, basePrice, itemType, true);
                                     } else {
-                                        newItem = std::make_shared<Beverage>(itemId, itemName, description, basePrice, itemType, true);
+                                        newItem = std::make_shared<beverage>(itemId, itemName, description, basePrice, itemType, true);
                                     }
 
-                                    if (menuDAO.insertMenuItem(targetResId, newItem)) {
+                                    if (menuDAO.insertMenuItem(newItem, targetResId)) {
                                         cout << "SUCCESS: Item added to menu!" << endl;
                                     } else {
                                         cout << "ERROR: Failed to add item." << endl;
@@ -356,21 +359,20 @@ int main() {
                                     if (orders.empty()) {
                                         cout << "No orders found for this restaurant." << endl;
                                     } else {
-                                        for (const auto& ord : orders) {
+                                        for (const auto& ord : orders) 
+                                        {
                                             std::string statusText = "Pending";
-                                            if (ord->getStatus() == 1) statusText = "Preparing";
-                                            else if (ord->getStatus() == 2) statusText = "Ready For Shipping";
-                                            else if (ord->getStatus() == 3) statusText = "Delivered";
+                                            if (ord->getStatus() == OrderStatus::Preparing) statusText = "Preparing";
+                                            else if (ord->getStatus() == OrderStatus::ReadyForShipping) statusText = "Ready For Shipping";
+                                            else if (ord->getStatus() == OrderStatus::Delivered) statusText = "Delivered";
 
                                             cout << "-----------------------------------------" << endl;
-                                            cout << "Order ID: " << ord->getOrderID() 
-                                                 << " | Total Price: $" << ord->getTotalPrice()
+                                            cout << "Order ID: " << ord->getID() 
+                                                 << " | Total Price: $" << ord->gettotalAmount()
                                                  << " | Current Status: [" << statusText << "]" << endl;
                                             cout << "Items ordered:" << endl;
                                             
-                                            for (const auto& item : ord->getCartItems()) {
-                                                cout << "   - " << item.getname() << " x " << item.getQuantity() << endl;
-                                            }
+                                            ord->getorderItem().displayCart();
                                         }
                                     }
                                     break;
@@ -449,8 +451,8 @@ int main() {
                             if (res->getisActive()) {
                                 cout << "ID: " << res->getID() 
                                      << " | Name: " << res->getname() 
-                                     << " | Address: " << res->getAddress() 
-                                     << " | Est. Prep Time: " << res->getPreparationTime() << " mins" << endl;
+                                     << " | Address: " << res->getaddress() 
+                                     << " | Est. Prep Time: " << res->getpreparationTime() << " mins" << endl;
                                 activeCount++;
                             }
                         }

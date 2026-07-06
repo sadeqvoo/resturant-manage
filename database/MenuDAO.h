@@ -22,6 +22,7 @@ public:
 
     bool deleteMenuItem(const std::string& itemID);
 
+    bool updateMenuItem(const std::string& itemID, double newPrice, const std::string& newDesc, bool isAvailable);
     std::vector<std::shared_ptr<menuitem>> getMenuForRestaurant(int restaurantID);
 };
 

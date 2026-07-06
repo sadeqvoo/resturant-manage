@@ -14,7 +14,7 @@ void systemadmin::displayAllRestaurants() const {
 
     for (size_t i = 0; i < allRestaurants.size(); ++i) {
         if (allRestaurants[i] != nullptr) {
-            std::cout << i + 1 << ". Name: " << allRestaurants[i]->getName() << "\n";
+            std::cout << i + 1 << ". Name: " << allRestaurants[i]->getname() << "\n";
         }
     }
     std::cout << "------------------------------\n";
@@ -24,12 +24,12 @@ void systemadmin::addRestaurant(std::shared_ptr<restaurant> newRestaurant) {
     if (newRestaurant == nullptr) return;
     
     allRestaurants.push_back(newRestaurant);
-    std::cout << "\n[System Admin] Restaurant '" << newRestaurant->getName() << "' successfully added to the system.\n";
+    std::cout << "\n[System Admin] Restaurant '" << newRestaurant->getname() << "' successfully added to the system.\n";
 }
 
 void systemadmin::removeRestaurant(const std::string& restaurantName) {
     for (size_t i = 0; i < allRestaurants.size(); ++i) {
-        if (allRestaurants[i] != nullptr && allRestaurants[i]->getName() == restaurantName) {
+        if (allRestaurants[i] != nullptr && allRestaurants[i]->getname() == restaurantName) {
             allRestaurants.erase(allRestaurants.begin() + i);
             std::cout << "\n[System Admin] Restaurant '" << restaurantName << "' has been removed from the system.\n";
             return;
