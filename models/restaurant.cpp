@@ -21,7 +21,7 @@ void restaurant::removeItemFromMenu(std::string itemID)
     }
 }
 
-std::shared_ptr<menuitem> restaurant::finditemById(std::string itemID) 
+std::shared_ptr<menuitem> restaurant::finditemById (std::string itemID) const
 {
     for (size_t i = 0; i < menu.size(); i++)
     {
@@ -52,10 +52,10 @@ void restaurant::displayMenu() const
     for(size_t i = 0 ; i < menu.size() ; i++)
     {
         std::cout << i+1 << "-" ;
-        std::cout << menu[i]->getname() << "\nID:" << menu[i]->getID() <<"\nItemType:" << menu[i]->getType() << "\nbasePrice:" << menu[i]->getbaseprice() << "\ndescription:" << menu[i]->getdescription() ;
+        std::cout << menu[i]->getname() << "\nID:" << menu[i]->getID() <<"\nItemType:" << menu[i]->getTypestring() << "\nbasePrice:" << menu[i]->getbaseprice() << "\ndescription:" << menu[i]->getdescription() ;
         if (menu[i]->getisAvailable() == true) std::cout << "\nexist:Yes" ;
         else std::cout << "\nexist:No" ;
-        std::cout << "\n-------------------------------------------\n"
+        std::cout << "\n-------------------------------------------\n" ;
     }
 
 

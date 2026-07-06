@@ -29,6 +29,7 @@ class menuitem
     std::string getdescription() const {return description ;} 
     double getbaseprice() const {return baseprice ;} 
     ItemType getType() const {return type ;} 
+    std::string getTypestring() const ;
     bool getisAvailable() const {return isAvailable ;} 
 
 

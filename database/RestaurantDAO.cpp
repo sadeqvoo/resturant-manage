@@ -13,10 +13,10 @@ bool RestaurantDAO::insertRestaurant(std::shared_ptr<restaurant> res) {
     std::string sql = "INSERT INTO restaurants (id, name, address, is_active, preparation_time, phone) VALUES ("
                       + std::to_string(res->getID()) + ", '"
                       + res->getname() + "', '"
-                      + res->getAddress() + "', "
+                      + res->getaddress() + "', "
                       + std::to_string(activeInt) + ", "
-                      + std::to_string(res->getPreparationTime()) + ", '"
-                      + res->getPhonenumber() + "');";
+                      + std::to_string(res->getpreparationTime()) + ", '"
+                      + res->getphonenumber() + "');";
 
     int exit = sqlite3_exec(db, sql.c_str(), NULL, 0, &messageError);
     

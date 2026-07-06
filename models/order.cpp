@@ -6,15 +6,15 @@ ID(ID1) , status(status1) ,restaurantID(restaurantID1), orderItem(orderItem1) , 
 
 std::string order::getStatusString() const
 {
-    if (status == preparing)
+    if (status == OrderStatus::Preparing)
     {
         return "preparing" ;
     }
-    else if(status == ReadyForShipping) 
+    else if(status == OrderStatus::ReadyForShipping) 
     {
         return "ReadyForShipping" ;
     }
-    else if (status == Delivered)
+    else if (status == OrderStatus::Delivered)
     {
         return "Delivered" ;
     } 
