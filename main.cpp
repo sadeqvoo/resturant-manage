@@ -259,25 +259,35 @@ int main() {
                                     itemType = (typeChoice == 2) ? ItemType::Beverage : ItemType::Food;
                                     cin.ignore();
 
-                                    cout << "Enter New Item ID (String/Code): ";
+                                    cout << "\nEnter New Item ID (String/Code): ";
                                     std::getline(cin, itemId);
 
-                                    cout << "Enter Item Name: ";
+                                    cout << "\nEnter Item Name: ";
                                     std::getline(cin, itemName);
 
-                                    cout << "Enter Base Price: ";
+                                    cout << "\nEnter Base Price: ";
                                     cin >> basePrice;
+
+                                    
                                     cin.ignore();
 
-                                    cout << "Enter Item Description: ";
+                                    cout << "\nEnter Item Description: ";
                                     std::getline(cin, description);
 
                                     
                                     std::shared_ptr<menuitem> newItem = nullptr;
-                                    if (itemType == ItemType::Food) {
-                                        newItem = std::make_shared<food>(itemId, itemName, description, basePrice, itemType, true);
-                                    } else {
-                                        newItem = std::make_shared<beverage>(itemId, itemName, description, basePrice, itemType, true);
+                                    if (itemType == ItemType::Food) 
+                                    {
+                                        int cookingTime ;
+                                        cout << "\nEnter cooking Time : " ;
+                                        cin >> cookingTime ; 
+                                        newItem = std::make_shared<food>(itemId, itemName, description, basePrice,true , cookingTime);
+                                    } else 
+                                    {
+                                        int volume ; 
+                                        cout << "\nEnter Volume : " ;
+                                        cin >> volume ;
+                                        newItem = std::make_shared<beverage>(itemId, itemName, description, basePrice, true , volume );
                                     }
 
                                     if (menuDAO.insertMenuItem(newItem, targetResId)) {
@@ -565,7 +575,8 @@ int main() {
                                         auto newOrder = std::make_shared<order>(
                                             newOrderId, 
                                             OrderStatus::Preparing, 
-                                            userCart.getorderItem(), 
+                                            selectedRestaurantId,
+                                            userCart, 
                                             userCart.gettotalAmount()
                                         );
 
