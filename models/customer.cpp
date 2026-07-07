@@ -26,6 +26,7 @@ void customer::displayOrderHistory() const
     std::cout << "---------------------\n" << std::endl;
 }
 
+/*
 void customer::handleMenu(const std::vector<std::shared_ptr<restaurant>>& allRestaurants)
 {
     int customerChoice = 0 ; 
@@ -121,8 +122,15 @@ void customer::handleMenu(const std::vector<std::shared_ptr<restaurant>>& allRes
                     std::cin >> count;
 
                     if (count > 0) {
-                        myCart.addtocart(itemName, count); 
-                        std::cout << "\nSuccessfully added/updated in cart!" << std::endl;
+                        std::shared_ptr<menuitem> selectedItem = nullptr;
+                        for (const auto& item : currentRestaurantMenu) 
+                        { 
+                            if (item->getname() == itemName) 
+                            {
+                                selectedItem = item;
+                                break;
+                            }
+                        }
                     } else {
                         std::cout << "\nQuantity must be greater than 0!" << std::endl;
                     }
@@ -208,3 +216,4 @@ void customer::handleMenu(const std::vector<std::shared_ptr<restaurant>>& allRes
     }
 }
 
+*/

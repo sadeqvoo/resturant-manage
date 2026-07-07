@@ -22,7 +22,7 @@ class cart
     cart() ;
     ~cart() = default ;
 
-    void addtocart (std::string name , int a) ;
+    void addtocart(std::shared_ptr<menuitem> item, int a);
     void removefromcart (std::string name , int a) ;
     void clearcart() ;
     double gettotalAmount() const;

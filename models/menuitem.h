@@ -20,6 +20,7 @@ class menuitem
     bool isAvailable ;
 
     public:
+    menuitem() = default;
     menuitem(std::string ID , std::string name , std::string description , double baseprice , ItemType type , bool isAvailable ) ;
 
     virtual ~menuitem() = default;
@@ -38,7 +39,7 @@ class menuitem
     void setbaseprice(double price) {baseprice = price ;}
     void setisAvailable (bool Available) {isAvailable = Available ;}
 
-    virtual double calculateFinalPrice() const = 0;
+    virtual double calculateFinalPrice() const {return 0.0 ;};
 };
 
 

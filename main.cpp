@@ -41,14 +41,59 @@ int main() {
         "extra_attribute INTEGER"
         ");";
 
-    char* errMsg = nullptr;
-    if (sqlite3_exec(db, createMenuTableSQL, nullptr, nullptr, &errMsg) != SQLITE_OK) {
-        cerr << "Error creating menu_items table: " << errMsg << endl;
-        sqlite3_free(errMsg);
-    } else {
-        cout << "System Table 'menu_items' is ready." << endl;
+        char* errMsg = nullptr;
+        if (sqlite3_exec(db, createMenuTableSQL, nullptr, nullptr, &errMsg) != SQLITE_OK) {
+            cerr << "Error creating menu_items table: " << errMsg << endl;
+            sqlite3_free(errMsg);
+        } else {
+            cout << "System Table 'menu_items' is ready." << endl;
+        }
+
+        const char* createResTableSQL = 
+        "CREATE TABLE IF NOT EXISTS restaurants ("
+        "id INTEGER PRIMARY KEY, "
+        "name TEXT, "
+        "address TEXT, "
+        "is_active INTEGER, "         
+        "preparation_time INTEGER, "  
+        "phone TEXT"
+        ");";
+
+    char* resErrMsg = nullptr;
+    if (sqlite3_exec(db, createResTableSQL, nullptr, nullptr, &resErrMsg) != SQLITE_OK) {
+        cerr << "Error creating restaurants table: " << resErrMsg << endl;
+        sqlite3_free(resErrMsg);
     }
-    
+
+
+    const char* createOrdersTableSQL = 
+    "CREATE TABLE IF NOT EXISTS orders ("
+    "order_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+    "restaurant_id INTEGER, "
+    "total_amount REAL, "
+    "status INTEGER"
+    ");";
+
+    if (sqlite3_exec(db, createOrdersTableSQL, nullptr, nullptr, &errMsg) != SQLITE_OK) 
+    {
+        cerr << "Error creating orders table: " << errMsg << endl;
+        sqlite3_free(errMsg);
+    }
+
+    const char* createOrderItemsTableSQL = 
+    "CREATE TABLE IF NOT EXISTS order_items ("
+    "order_id INTEGER, "
+    "item_name TEXT, "
+    "quantity INTEGER, "
+    "FOREIGN KEY(order_id) REFERENCES orders(id)"
+    ");";
+
+    if (sqlite3_exec(db, createOrderItemsTableSQL, nullptr, nullptr, &errMsg) != SQLITE_OK) 
+    {
+        cerr << "Error creating order_items table: " << errMsg << endl;
+        sqlite3_free(errMsg);
+    }
+
     RestaurantDAO restaurantDAO(db);
     MenuDAO menuDAO(db);
     OrderDAO orderDAO(db);
@@ -104,7 +149,7 @@ int main() {
                                 cout << "No restaurants registered yet." << endl;
                             } else {
                                 for (const auto& res : resList) {
-                                    std::string statusStr = res->getisActive() ? "Active" : "Inactive";
+                                    std::string statusStr = res->getisActive() ? "Active" : "DeActive";
                                     cout << "ID: " << res->getID() 
                                          << " | Name: " << res->getname() 
                                          << " | Phone: " << res->getphonenumber()
@@ -153,8 +198,9 @@ int main() {
                             int resId, newStatus;
                             cout << "\nEnter Restaurant ID to toggle status: ";
                             cin >> resId;
-                            cout << "Enter New Status (1 for Activate, 0 for Deactivate): ";
+                            cout << "Enter New Status (1 for Activate, 2 for Deactivate): ";
                             cin >> newStatus;
+                            if(newStatus == 2) newStatus = 0 ;
 
                             if (restaurantDAO.updateRestaurantStatus(resId, newStatus)) {
                                 cout << "SUCCESS: Restaurant status updated successfully!" << endl;
@@ -387,9 +433,7 @@ int main() {
                             }
                         }
                     }
-                    // -----------------------------------------------------
-                    // زیرمنو ۲: مدیریت سفارشات جاری رستوران
-                    // -----------------------------------------------------
+                   
                     else if (managerChoice == 2) {
                         int orderChoice = 0;
                         while (true) 
@@ -568,13 +612,29 @@ int main() {
                                     cin.ignore();
                                     cout << "\nEnter exact Item Name to add to cart: ";
                                     std::getline(cin, targetItemName);
-
+                                    
                                     if (targetItemName.empty()) break;
+
+                                    std::shared_ptr<menuitem> selectedItem = nullptr;
+                                    for (const auto& item : menuList) 
+                                    {
+                                        if (item->getname() == targetItemName) 
+                                        {
+                                            selectedItem = item;
+                                            break;
+                                        }
+                                    }
+
+                                    if (selectedItem == nullptr) 
+                                    {
+                                        cout << "ERROR: Item not found in menu!" << endl;
+                                        break;
+                                    }
 
                                     cout << "Enter Quantity: ";
                                     cin >> quantity;
 
-                                    userCart.addtocart(targetItemName, quantity);
+                                    userCart.addtocart(selectedItem , quantity);
                                     cout << "SUCCESS: Cart updated!" << endl;
                                     break;
                                 }

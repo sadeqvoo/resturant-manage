@@ -4,26 +4,15 @@
 
 cart::cart() {}
 
-void cart::addtocart(std::string name , int a)
+void cart::addtocart(std::shared_ptr<menuitem> item, int a)
 {
-    for (size_t j = 0; j < cartin.size(); j++)
-    {
-        if (cartin[j].item != nullptr) 
-        {
-            if (cartin[j].item->getname() == name)
-            {
-                cartin[j].number = a ;
-                return; 
-            }
+    for (auto& cartItem : cartin) {
+        if (cartItem.item && cartItem.item->getID() == item->getID()) {
+            cartItem.number = a;
+            return;
         }
     }
-    cartitem newCartIn ;
-    newCartIn.number = a ;
-    
-    newCartIn.item = nullptr;
-    newCartIn.item->setname(name) ; 
-    
-    cartin.push_back(newCartIn) ;
+    cartin.push_back({item, a});
 }
 
 void cart::removefromcart(std::string name , int a)

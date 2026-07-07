@@ -24,7 +24,10 @@ static int orderItemsCallback(void* data, int argc, char** argv, char** azColNam
     std::string itemName = argv[1] ? argv[1] : "";
     int quantity = argv[2] ? std::stoi(argv[2]) : 0;
 
-    (*currentOrder)->getorderItem().addtocart(itemName, quantity);
+    auto tempItem = std::make_shared<menuitem>(); 
+    tempItem->setname(itemName); 
+    
+    (*currentOrder)->getorderItem().addtocart(tempItem, quantity);
 
     return 0;
 }
