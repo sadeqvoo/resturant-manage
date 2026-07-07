@@ -29,3 +29,12 @@ void order::setStatus(std::string newStatus)
     if (newStatus == "Delivered") status = OrderStatus::Delivered ;
 
 }
+
+void order::displayOrderDetails() const 
+{
+    std::cout << "Order ID: " << ID 
+              << " | Restaurant ID: " << restaurantID 
+              << " | Total: $" << totalAmount << std::endl;
+    std::cout << "Items Ordered:" << std::endl;
+    orderItem.displayCart(); 
+}

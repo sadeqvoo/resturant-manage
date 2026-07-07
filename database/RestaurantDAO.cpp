@@ -60,7 +60,7 @@ static int restaurantCallback(void* data, int argc, char** argv, char** azColNam
     int prepTime = argv[4] ? std::stoi(argv[4]) : 0;
     std::string phone = argv[5] ? argv[5] : "";
 
-    auto newRes = std::make_shared<restaurant>(id, name, address, isActive, prepTime, phone);
+    auto newRes = std::make_shared<restaurant>(id, name, address, isActive, prepTime, phone , "");
     restaurantsList->push_back(newRes);
 
     return 0;

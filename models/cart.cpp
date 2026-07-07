@@ -20,7 +20,7 @@ void cart::addtocart(std::string name , int a)
     cartitem newCartIn ;
     newCartIn.number = a ;
     
-    newCartIn.item = std::make_shared<menuitem>() ;
+    newCartIn.item = nullptr;
     newCartIn.item->setname(name) ; 
     
     cartin.push_back(newCartIn) ;

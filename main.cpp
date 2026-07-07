@@ -23,6 +23,32 @@ int main() {
     }
     cout << "--- Database connection established successfully ---" << endl;
 
+    if (exit != SQLITE_OK) {
+        cerr << "Error opening database!" << endl;
+        return -1;
+    }
+    cout << "--- Database connection established successfully ---" << endl;
+
+    const char* createMenuTableSQL = 
+        "CREATE TABLE IF NOT EXISTS menu_items ("
+        "id TEXT PRIMARY KEY, "
+        "restaurant_id INTEGER, "
+        "name TEXT, "
+        "description TEXT, "
+        "price REAL, "
+        "is_available INTEGER, "
+        "item_type TEXT, "
+        "extra_attribute INTEGER"
+        ");";
+
+    char* errMsg = nullptr;
+    if (sqlite3_exec(db, createMenuTableSQL, nullptr, nullptr, &errMsg) != SQLITE_OK) {
+        cerr << "Error creating menu_items table: " << errMsg << endl;
+        sqlite3_free(errMsg);
+    } else {
+        cout << "System Table 'menu_items' is ready." << endl;
+    }
+    
     RestaurantDAO restaurantDAO(db);
     MenuDAO menuDAO(db);
     OrderDAO orderDAO(db);
@@ -230,7 +256,7 @@ int main() {
                                         cout << "Menu is empty." << endl;
                                     } else {
                                         for (const auto& item : menuList) {
-                                            std::string availability = item->getisAvailable() ? "Available" : "Out of Stock";
+                                            std::string availability = item->getisAvailable() ? "Available" : "NotAvailable";
                                             std::string typeStr = (item->getType() == ItemType::Food) ? "Food" : "Beverage";
                                             
                                             // Using your exact lowercase getters
@@ -238,8 +264,24 @@ int main() {
                                                  << " | Name: " << item->getname() 
                                                  << " | Type: " << typeStr
                                                  << " | Base Price: $" << item->getbaseprice()
-                                                 << " | Status: [" << availability << "]" 
-                                                 << "\n   Description: " << item->getdescription() << endl;
+                                                 << " | Status: [" << availability << "]" ;
+
+                                                if (item->getType() == ItemType::Food) 
+                                                {
+                                                    if (auto f = std::dynamic_pointer_cast<food>(item)) 
+                                                    {
+                                                        cout << " | Prep Time: " << f->getcookingTime() << " mins";
+                                                    }
+                                                } 
+                                                else if (item->getType() == ItemType::Beverage) 
+                                                {
+                                                    if (auto b = std::dynamic_pointer_cast<beverage>(item)) 
+                                                    {
+                                                        cout << " | Volume: " << b->getVolume() << " ml";
+                                                    }
+                                                }
+
+                                                 cout << "\n   Description: " << item->getdescription() << endl;
                                         }
                                     }
                                     break;

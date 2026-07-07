@@ -12,7 +12,7 @@ static int mainOrderCallback(void* data, int argc, char** argv, char** azColName
     double totalAmount = argv[2] ? std::stod(argv[2]) : 0.0;
     int status = argv[3] ? std::stoi(argv[3]) : 0;
 
-    auto newOrder = std::make_shared<order>(orderID, restaurantID, totalAmount, status);
+    auto newOrder = std::make_shared<order>(orderID, static_cast<OrderStatus>(status), restaurantID, cart{}, totalAmount);
     ordersList->push_back(newOrder);
 
     return 0;

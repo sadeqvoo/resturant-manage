@@ -90,7 +90,7 @@ void systemadmin::handleAdminMenu() {
 
 
 
-            auto newRes = std::make_shared<restaurant>(id, name, address , isActive , preparationTime , phonenumber1); 
+            auto newRes = std::make_shared<restaurant>(id, name, address , isActive , preparationTime , phonenumber1 , ""); 
             
             addRestaurant(newRes);
         }

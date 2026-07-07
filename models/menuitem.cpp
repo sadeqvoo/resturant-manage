@@ -9,4 +9,6 @@ std::string menuitem::getTypestring() const
 {
     if (type == ItemType::Food) return "Food" ;
     else if (type == ItemType::Beverage) return "Beverage" ;
+
+    return "Unknown";
 }
