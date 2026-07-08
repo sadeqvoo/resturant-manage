@@ -57,9 +57,11 @@ void DatabaseManager::createTables() {
     std::string sql_orders = 
         "CREATE TABLE IF NOT EXISTS orders ("
         "order_id INTEGER PRIMARY KEY, "
+        "customer_id INTEGER, "
         "restaurant_id INTEGER, "
         "total_amount REAL, "
-        "status INTEGER);";
+        "status INTEGER)"
+        "FOREIGN KEY(customer_id) REFERENCES customers(id));";
 
     std::string sql_order_items = 
         "CREATE TABLE IF NOT EXISTS order_items ("
@@ -68,11 +70,10 @@ void DatabaseManager::createTables() {
         "quantity INTEGER);";
 
         
-    std::string sql_users = 
+    std::string sql_customers = 
         "CREATE TABLE IF NOT EXISTS users ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT, "
         "username TEXT NOT NULL, "
-        "password TEXT NOT NULL, "
         "role TEXT NOT NULL, "            
         "points INTEGER DEFAULT 0, "        
         "current_level TEXT DEFAULT 'Normal');"; 
@@ -102,7 +103,7 @@ void DatabaseManager::createTables() {
         sqlite3_free(messageError);
     }
     
-    exit = sqlite3_exec(db, sql_users.c_str(), NULL, 0, &messageError);
+    exit = sqlite3_exec(db, sql_customers.c_str(), NULL, 0, &messageError);
     if (exit != SQLITE_OK) {
         std::cerr << "Error Create Restaurants Table: " << messageError << std::endl;
         sqlite3_free(messageError);

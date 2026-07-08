@@ -14,15 +14,22 @@ class customer : public user
     private:
     cart myCart ;
     std::vector<order> orderHistory ;   
+
+    int id; 
+    int points;
+    std::string membership_level;
+
     public:
-    customer(cart myCart1 ,std::vector<order> orderHistory1 , std::string rolename1) ;
+    customer(int id , int points , std::string membership_level , cart myCart1 ,std::vector<order> orderHistory1 , std::string rolename1) ;
     ~customer() = default ;
 
-    void handleMenu(const std::vector<std::shared_ptr<restaurant>>& allRestaurants) ;
+    int getPoints() const { return points; }
+    std::string getMembershipLevel() const { return membership_level; }
+    int getID() const { return id; }
     
     void addOrderToHistory(const order& newOrder);
-    
     void displayOrderHistory() const;
+    void displayProfile() const;
 };
 
 

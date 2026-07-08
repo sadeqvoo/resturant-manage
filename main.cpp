@@ -4,9 +4,11 @@
 #include <string>
 #include "sqlite3.h"
 
+#include "database/DatabaseManager.h"
 #include "database/RestaurantDAO.h"
 #include "database/MenuDAO.h"
 #include "database/OrderDAO.h"
+#include "database/CustomerDAO.h"
 
 #include "models/food.h"
 #include "models/beverage.h"
@@ -14,85 +16,17 @@
 using namespace std;
 
 int main() {
-    sqlite3* db = nullptr;
-    int exit = sqlite3_open("restaurant_system.db", &db);
-
-    if (exit != SQLITE_OK) {
+    
+    DatabaseManager dbManager;
+    
+    if (!dbManager.openDatabase("restaurant_system.db")) {
         cerr << "Error opening database!" << endl;
         return -1;
     }
-    cout << "--- Database connection established successfully ---" << endl;
-
-    if (exit != SQLITE_OK) {
-        cerr << "Error opening database!" << endl;
-        return -1;
-    }
-    cout << "--- Database connection established successfully ---" << endl;
-
-    const char* createMenuTableSQL = 
-        "CREATE TABLE IF NOT EXISTS menu_items ("
-        "id TEXT PRIMARY KEY, "
-        "restaurant_id INTEGER, "
-        "name TEXT, "
-        "description TEXT, "
-        "price REAL, "
-        "is_available INTEGER, "
-        "item_type TEXT, "
-        "extra_attribute INTEGER"
-        ");";
-
-        char* errMsg = nullptr;
-        if (sqlite3_exec(db, createMenuTableSQL, nullptr, nullptr, &errMsg) != SQLITE_OK) {
-            cerr << "Error creating menu_items table: " << errMsg << endl;
-            sqlite3_free(errMsg);
-        } else {
-            cout << "System Table 'menu_items' is ready." << endl;
-        }
-
-        const char* createResTableSQL = 
-        "CREATE TABLE IF NOT EXISTS restaurants ("
-        "id INTEGER PRIMARY KEY, "
-        "name TEXT, "
-        "address TEXT, "
-        "is_active INTEGER, "         
-        "preparation_time INTEGER, "  
-        "phone TEXT"
-        ");";
-
-    char* resErrMsg = nullptr;
-    if (sqlite3_exec(db, createResTableSQL, nullptr, nullptr, &resErrMsg) != SQLITE_OK) {
-        cerr << "Error creating restaurants table: " << resErrMsg << endl;
-        sqlite3_free(resErrMsg);
-    }
+    
+    sqlite3* db = dbManager.getDatabasePointer();
 
 
-    const char* createOrdersTableSQL = 
-    "CREATE TABLE IF NOT EXISTS orders ("
-    "order_id INTEGER PRIMARY KEY AUTOINCREMENT, "
-    "restaurant_id INTEGER, "
-    "total_amount REAL, "
-    "status INTEGER"
-    ");";
-
-    if (sqlite3_exec(db, createOrdersTableSQL, nullptr, nullptr, &errMsg) != SQLITE_OK) 
-    {
-        cerr << "Error creating orders table: " << errMsg << endl;
-        sqlite3_free(errMsg);
-    }
-
-    const char* createOrderItemsTableSQL = 
-    "CREATE TABLE IF NOT EXISTS order_items ("
-    "order_id INTEGER, "
-    "item_name TEXT, "
-    "quantity INTEGER, "
-    "FOREIGN KEY(order_id) REFERENCES orders(id)"
-    ");";
-
-    if (sqlite3_exec(db, createOrderItemsTableSQL, nullptr, nullptr, &errMsg) != SQLITE_OK) 
-    {
-        cerr << "Error creating order_items table: " << errMsg << endl;
-        sqlite3_free(errMsg);
-    }
 
     RestaurantDAO restaurantDAO(db);
     MenuDAO menuDAO(db);
@@ -520,6 +454,36 @@ int main() {
                 break;
             }
             case 3: {
+
+
+                int inputId;
+                cout << "\n=========================================" << endl;
+                cout << "             Customer Login              " << endl;
+                cout << "=========================================" << endl;
+                cout << "Enter your Customer ID (or 0 to register as new): ";
+                cin >> inputId;
+
+                CustomerDAO customerDAO(db);
+                std::shared_ptr<customer> currentCustomer = nullptr;
+
+                if (inputId == 0) {
+                    std::string newUsername;
+                    cout << "Enter your name to register: ";
+                    cin >> newUsername;
+                    customerDAO.registerCustomer(newUsername);
+                    cout << "Please restart and login with your new ID." << endl;
+                    break; 
+                } else {
+                    currentCustomer = customerDAO.getCustomerById(inputId);
+                    if (currentCustomer == nullptr) {
+                        cout << " ERROR: Customer not found! Please check your ID." << endl;
+                        break; 
+                    }
+                }
+
+                currentCustomer->displayProfile();
+
+
                 int customerChoice = 0;
 
                 while (true) {
