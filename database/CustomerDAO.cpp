@@ -3,28 +3,39 @@
 
 CustomerDAO::CustomerDAO(sqlite3* databasePointer) : db(databasePointer) {}
 
-bool CustomerDAO::registerCustomer(const std::string& username) {
+int CustomerDAO::registerCustomer(const std::string& username) {
     char* messageError = nullptr;
-    // هنگام ثبت‌نام، نیازی به دادن امتیاز و سطح نیست، خود دیتابیس مقادیر پیش‌فرض را می‌گذارد
-    std::string sql = "INSERT INTO customers (username) VALUES ('" + username + "');";
+    
+    std::string sql = "INSERT INTO customers (username, role) VALUES ('" + username + "', 'Customer');";
     
     if (sqlite3_exec(db, sql.c_str(), NULL, 0, &messageError) != SQLITE_OK) {
         std::cerr << "Error Registering Customer: " << messageError << std::endl;
         sqlite3_free(messageError);
-        return false;
+        return -1;
     }
     std::cout << "Customer registered successfully! (Default Level: Normal, Points: 0)" << std::endl;
-    return true;
+
+    int newlyGeneratedId = sqlite3_last_insert_rowid(db);
+    return newlyGeneratedId;
 }
 
 static int customerCallback(void* data, int argc, char** argv, char** azColName) {
     auto* foundCustomer = static_cast<std::shared_ptr<customer>*>(data);
     
-    int id = argv[0] ? std::stoi(argv[0]) : 0;
-    std::string username = argv[1] ? argv[1] : "";
-    int points = argv[2] ? std::stoi(argv[2]) : 0;
-    std::string level = argv[3] ? argv[3] : "";
+    int id = 0;
+    std::string username = "";
+    int points = 0;
+    std::string level = "Normal";
 
+    for (int i = 0; i < argc; i++) {
+        if (argv[i] == nullptr) continue;
+        std::string colName = azColName[i];
+        
+        if (colName == "id") id = std::stoi(argv[i]);
+        else if (colName == "username") username = argv[i];
+        else if (colName == "points") points = std::stoi(argv[i]);
+        else if (colName == "current_level") level = argv[i];
+    }
     
     *foundCustomer = std::make_shared<customer>(id, username, points, level);
     return 0;
@@ -33,8 +44,22 @@ static int customerCallback(void* data, int argc, char** argv, char** azColName)
 std::shared_ptr<customer> CustomerDAO::getCustomerById(int customerId) {
     std::shared_ptr<customer> foundCustomer = nullptr;
     char* messageError = nullptr;
-    std::string sql = "SELECT * FROM customers WHERE id = " + std::to_string(customerId) + ";";
-    
+    std::string sql = "SELECT id, username, points, current_level FROM customers WHERE id = " + std::to_string(customerId) + ";";    
     sqlite3_exec(db, sql.c_str(), customerCallback, &foundCustomer, &messageError);
     return foundCustomer;
+}
+
+bool CustomerDAO::updateCustomerLoyalty(int customerId, int newPoints, const std::string& newLevel) {
+    char* messageError = nullptr;
+    
+    std::string sql = "UPDATE customers SET points = " + std::to_string(newPoints) + 
+                      ", current_level = '" + newLevel + "' WHERE id = " + std::to_string(customerId) + ";";
+    
+    if (sqlite3_exec(db, sql.c_str(), NULL, 0, &messageError) != SQLITE_OK) {
+        std::cerr << "Error Updating Customer Loyalty: " << messageError << std::endl;
+        sqlite3_free(messageError);
+        return false;
+    }
+    
+    return true;
 }

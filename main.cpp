@@ -470,11 +470,20 @@ int main() {
                     std::string newUsername;
                     cout << "Enter your name to register: ";
                     cin >> newUsername;
-                    customerDAO.registerCustomer(newUsername);
-                    cout << "Please restart and login with your new ID." << endl;
+                    
+                    int newId = customerDAO.registerCustomer(newUsername);
+                    
+                    if (newId != -1) {
+                        cout << "\n=========================================" << endl;
+                        cout << " Registration Successful!" << endl;
+                        cout << " *** YOUR CUSTOMER ID IS: " << newId << " ***" << endl;
+                        cout << "=========================================" << endl;
+                        cout << "Please remember this ID. Restart and login with your new ID." << endl;
+                    }
                     break; 
                 } else {
                     currentCustomer = customerDAO.getCustomerById(inputId);
+                    
                     if (currentCustomer == nullptr) {
                         cout << " ERROR: Customer not found! Please check your ID." << endl;
                         break; 
@@ -631,6 +640,9 @@ int main() {
                                         break;
                                     }
 
+                                    double baseShippingFee = 15000.0;
+                                    currentCustomer->checkout(userCart, baseShippingFee);
+
                                     char checkoutChoice;
                                     cout << "Are you sure you want to place this order for $" << userCart.gettotalAmount() << "? (y/n): ";
                                     cin >> checkoutChoice;
@@ -651,7 +663,16 @@ int main() {
                                             cout << ">> YOUR ORDER ID: #" << newOrderId << endl;
                                             cout << ">> CURRENT STATUS: Preparing" << endl;
                                             userCart.clearcart(); 
-                                            resMenuChoice = 6; 
+                                        
+                                            CustomerDAO customerDAO(db);
+                                            customerDAO.updateCustomerLoyalty(
+                                            currentCustomer->getID(), 
+                                            currentCustomer->getPoints(), 
+                                            currentCustomer->getMembershipLevel()->getLevelName()
+                                            );
+
+                                            userCart.clearcart(); 
+                                            resMenuChoice = 6;
                                         } else {
                                             cout << " ERROR: Failed to save order." << endl;
                                         }

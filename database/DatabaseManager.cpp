@@ -71,7 +71,7 @@ void DatabaseManager::createTables() {
 
         
     std::string sql_customers = 
-        "CREATE TABLE IF NOT EXISTS users ("
+        "CREATE TABLE IF NOT EXISTS customers ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT, "
         "username TEXT NOT NULL, "
         "role TEXT NOT NULL, "            

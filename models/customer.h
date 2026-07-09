@@ -8,6 +8,8 @@
 #include <memory>
 #include "restaurant.h"
 #include "order.h"
+#include "MembershipLevel.h"
+
 
 class customer : public user 
 {
@@ -16,20 +18,29 @@ class customer : public user
     std::vector<order> orderHistory ;   
 
     int id; 
+    std::string username ; 
     int points;
-    std::string membership_level;
+    std::shared_ptr<MembershipLevel> levelStrategy;
 
     public:
-    customer(int id , int points , std::string membership_level , cart myCart1 ,std::vector<order> orderHistory1 , std::string rolename1) ;
+    customer(int id ,std::string username1, int points , std::shared_ptr<MembershipLevel> levelStrategy1 , cart myCart1 ,std::vector<order> orderHistory1 , std::string rolename1) ;
+    customer(int id, std::string rolename, int points, std::string levelStr);
+
     ~customer() = default ;
 
-    int getPoints() const { return points; }
-    std::string getMembershipLevel() const { return membership_level; }
-    int getID() const { return id; }
+    void displaymeno() override;
     
+    
+    int getPoints() const { return points; }
+    std::shared_ptr<MembershipLevel> getMembershipLevel() const { return levelStrategy ; }
+    int getID() const { return id; }
+    std::string getUsername() const {return username ;}
+    
+    void checkout(const cart& activeCart, double baseShippingFee);
     void addOrderToHistory(const order& newOrder);
     void displayOrderHistory() const;
     void displayProfile() const;
+
 };
 
 

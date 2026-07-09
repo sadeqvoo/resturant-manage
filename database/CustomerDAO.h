@@ -16,8 +16,8 @@ public:
     ~CustomerDAO() = default;
 
     
-    bool registerCustomer(const std::string& username);
-    
+    int registerCustomer(const std::string& username);
+    bool updateCustomerLoyalty(int customerId, int newPoints, const std::string& newLevel);
     
     std::shared_ptr<customer> getCustomerById(int customerId);
 };
