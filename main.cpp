@@ -13,9 +13,13 @@
 #include "models/food.h"
 #include "models/beverage.h"
 
+#include <ctime>
+
 using namespace std;
 
 int main() {
+    
+    srand(time(0));
     
     DatabaseManager dbManager;
     
@@ -148,18 +152,30 @@ int main() {
                             cout << "\n=========================================" << endl;
                             cout << "        System Reports & Analytics       " << endl;
                             cout << "=========================================" << endl;
-                            
-                            std::vector<std::shared_ptr<order>> allOrders = orderDAO.getAllOrdersForCustomer();
+    
+                            std::vector<std::shared_ptr<order>> allOrders = orderDAO.getAllOrders();
                             double totalSales = 0.0;
                             int totalOrdersCount = allOrders.size();
 
                             for (const auto& ord : allOrders) {
-                                totalSales += ord->gettotalAmount();
+                            totalSales += ord->gettotalAmount();
                             }
 
                             cout << ">> Total Registered Orders: " << totalOrdersCount << endl;
-                            cout << ">> Total System Revenue   : $" << totalSales << endl;
-                            cout << ">> Active Users Monitor   : 1 (Single Customer Session)" << endl;
+                            cout << ">> Total System Revenue   : " << totalSales << " Toman" << endl;
+                            cout << "-----------------------------------------" << endl;
+
+                            cout << ">> Users Loyalty Level Stats: " << endl;
+                            CustomerDAO tempCustomerDAO(db);
+                            std::map<std::string, int> levelStats = tempCustomerDAO.getUserLevelStats();
+    
+                            if (levelStats.empty()) {
+                                cout << "   No customers registered yet." << endl;
+                            } else {
+                                for (const auto& pair : levelStats) {
+                                cout << "   - " << pair.first << " Members: " << pair.second << " user(s)" << endl;
+                                }
+                            }
                             cout << "-----------------------------------------" << endl;
                             break;
                         }
@@ -658,7 +674,7 @@ int main() {
                                             userCart.gettotalAmount()
                                         );
 
-                                        if (orderDAO.insertOrder(newOrder)) {
+                                        if (orderDAO.insertOrder(newOrder ,currentCustomer->getID())) {
                                             cout << "\n SUCCESS: Order placed successfully!" << endl;
                                             cout << ">> YOUR ORDER ID: #" << newOrderId << endl;
                                             cout << ">> CURRENT STATUS: Preparing" << endl;
@@ -691,7 +707,7 @@ int main() {
 
                     else if (customerChoice == 2) {
                         cout << "\n=== Your Order History ===" << endl;
-                        std::vector<std::shared_ptr<order>> history = orderDAO.getAllOrdersForCustomer();
+                        std::vector<std::shared_ptr<order>> history = orderDAO.getAllOrdersForCustomer(currentCustomer->getID());
 
                         if (history.empty()) {
                             cout << "You have no past orders." << endl;

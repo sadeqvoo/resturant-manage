@@ -50,6 +50,28 @@ void customer::displayProfile() const {
     std::cout << "------------------------\n" << std::endl;
 }
 
+void customer::checkLevelUpgrade() 
+{
+    std::string currentLvl = levelStrategy->getLevelName();
+    std::string newLvl = currentLvl;
+
+    if (this->points >= 700) {
+        newLvl = "VIP";
+    } else if (this->points >= 300) {
+        newLvl = "Gold";
+    } else if (this->points >= 100) {
+        newLvl = "Silver";
+    } else {
+        newLvl = "Normal";
+    }
+
+    if (newLvl != currentLvl) {
+        this->levelStrategy = createMembershipLevel(newLvl);
+        std::cout << "\nCONGRATULATIONS! You have been upgraded to [" 
+                  << newLvl << "] Level! \n" << std::endl;
+    }
+}
+
 void customer::checkout(const cart& activeCart, double baseShippingFee) 
 {
     double basePrice = activeCart.gettotalAmount(); 
@@ -63,6 +85,10 @@ void customer::checkout(const cart& activeCart, double baseShippingFee)
     double shippingFee = levelStrategy->calculateShippingFee(baseShippingFee);
     double totalAmount = basePrice - discount + shippingFee;
     int pointsEarned = levelStrategy->calculatePointsEarned(totalAmount);
+
+    this->points += pointsEarned;
+
+    this->checkLevelUpgrade();
 
     std::cout << "\n--- FINAL INVOICE ---" << std::endl;
     std::cout << "Base Price:          " << basePrice << " Toman" << std::endl;

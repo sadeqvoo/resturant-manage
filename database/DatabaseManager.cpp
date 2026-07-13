@@ -60,7 +60,7 @@ void DatabaseManager::createTables() {
         "customer_id INTEGER, "
         "restaurant_id INTEGER, "
         "total_amount REAL, "
-        "status INTEGER)"
+        "status INTEGER,"
         "FOREIGN KEY(customer_id) REFERENCES customers(id));";
 
     std::string sql_order_items = 

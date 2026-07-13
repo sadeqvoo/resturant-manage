@@ -30,6 +30,7 @@ class customer : public user
 
     void displaymeno() override;
     
+    void checkLevelUpgrade();
     
     int getPoints() const { return points; }
     std::shared_ptr<MembershipLevel> getMembershipLevel() const { return levelStrategy ; }

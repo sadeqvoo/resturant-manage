@@ -39,7 +39,7 @@ public:
     }
     
     int calculatePointsEarned(double totalAmount) const override { 
-        return static_cast<int>(totalAmount * 0.01); 
+        return static_cast<int>(totalAmount * 0.001); 
     }
     
     int getPointsRequiredForNext() const override { 
@@ -61,7 +61,7 @@ public:
     }
     
     int calculatePointsEarned(double totalAmount) const override { 
-        return static_cast<int>(totalAmount * 0.02); 
+        return static_cast<int>(totalAmount * 0.002); 
     }
     
     int getPointsRequiredForNext() const override { 
@@ -83,7 +83,7 @@ public:
     }
     
     int calculatePointsEarned(double totalAmount) const override { 
-        return static_cast<int>(totalAmount * 0.03); 
+        return static_cast<int>(totalAmount * 0.003); 
     }
     
     int getPointsRequiredForNext() const override { 
@@ -105,7 +105,7 @@ public:
     }
     
     int calculatePointsEarned(double totalAmount) const override { 
-        return static_cast<int>(totalAmount * 0.05); 
+        return static_cast<int>(totalAmount * 0.005); 
     }
     
     int getPointsRequiredForNext() const override { 

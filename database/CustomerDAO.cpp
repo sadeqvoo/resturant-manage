@@ -63,3 +63,25 @@ bool CustomerDAO::updateCustomerLoyalty(int customerId, int newPoints, const std
     
     return true;
 }
+
+
+static int statsCallback(void* data, int argc, char** argv, char** azColName) {
+    auto* stats = static_cast<std::map<std::string, int>*>(data);
+    if (argc == 2 && argv[0] && argv[1]) {
+        std::string levelName = argv[0];
+        int count = std::stoi(argv[1]);
+        (*stats)[levelName] = count;
+    }
+    return 0;
+}
+
+std::map<std::string, int> CustomerDAO::getUserLevelStats() {
+    std::map<std::string, int> stats;
+    char* messageError = nullptr;
+    
+    std::string sql = "SELECT current_level, COUNT(*) FROM customers GROUP BY current_level;";
+    
+    sqlite3_exec(db, sql.c_str(), statsCallback, &stats, &messageError);
+    return stats;
+}
+
