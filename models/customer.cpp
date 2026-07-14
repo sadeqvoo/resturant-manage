@@ -34,6 +34,36 @@ void customer::displayOrderHistory() const
     std::cout << "---------------------\n" << std::endl;
 }
 
+std::vector<std::string> customer::getBadges() const 
+{
+    std::vector<std::string> badges;
+
+    // ۱. نشان خریدار متوالی (Frequent Buyer)
+    // اگر تعداد کل سفارشات کاربر ۵ یا بیشتر باشد
+    if (orderHistory.size() >= 5) {
+        badges.push_back("Frequent Buyer");
+    }
+
+    // ۲. نشان مشتری شب‌زنده‌دار (Night Customer)
+    // فرض می‌کنیم کلاس order متدی به نام getOrderHour() دارد که ساعت ثبت سفارش را برمی‌گرداند.
+    // (اگر این متد هنوز در order پیاده‌سازی نشده، کمی پایین‌تر راهکار ساده آن را نوشته‌ام)
+    bool hasNightOrder = false;
+    for (const auto& ord : orderHistory) {
+        // فرض: ساعت سفارش بین ۲۳ شب تا ۴ صبح باشد
+        int hr = ord.getOrderHour(); 
+        if (hr >= 23 || hr < 4) {
+            hasNightOrder = true;
+            break;
+        }
+    }
+
+    if (hasNightOrder) {
+        badges.push_back("Night Owl");
+    }
+
+    return badges;
+}
+
 void customer::displayProfile() const {
     std::cout << "\n--- Customer Profile ---" << std::endl;
     std::cout << "Name: " << getUsername() << std::endl;
@@ -47,6 +77,17 @@ void customer::displayProfile() const {
         std::cout << "You are at the maximum level (VIP)!" << std::endl;
     }
     
+    std::vector<std::string> badges = getBadges();
+    std::cout << "Badges earned: ";
+    if (badges.empty()) {
+        std::cout << "No badges earned yet. Keep ordering! " << std::endl;
+    } else {
+        std::cout << std::endl;
+        for (const auto& badge : badges) {
+            std::cout << "   - " << badge << std::endl;
+        }
+    }
+
     std::cout << "------------------------\n" << std::endl;
 }
 
@@ -72,7 +113,7 @@ void customer::checkLevelUpgrade()
     }
 }
 
-void customer::checkout(const cart& activeCart, double baseShippingFee) 
+void customer::checkout(const cart& activeCart, double baseShippingFee , double couponDiscountPercent ) 
 {
     double basePrice = activeCart.gettotalAmount(); 
     
@@ -82,6 +123,13 @@ void customer::checkout(const cart& activeCart, double baseShippingFee)
     }
 
     double discount = levelStrategy->calculateDiscount(basePrice);
+
+    double couponDiscount = 0.0;
+    if (couponDiscountPercent > 0.0) 
+    {
+        couponDiscount = basePrice * (couponDiscountPercent / 100.0);
+    }
+
     double shippingFee = levelStrategy->calculateShippingFee(baseShippingFee);
     double totalAmount = basePrice - discount + shippingFee;
     int pointsEarned = levelStrategy->calculatePointsEarned(totalAmount);
@@ -93,6 +141,10 @@ void customer::checkout(const cart& activeCart, double baseShippingFee)
     std::cout << "\n--- FINAL INVOICE ---" << std::endl;
     std::cout << "Base Price:          " << basePrice << " Toman" << std::endl;
     std::cout << "Level Discount (-):  " << discount << " Toman (" << levelStrategy->getLevelName() << ")" << std::endl;
+    if (couponDiscount > 0.0) 
+    {
+        std::cout << "Coupon Discount (-): " << couponDiscount << " Toman (" << couponDiscountPercent << "% Off)" << std::endl;
+    }
     std::cout << "Shipping Fee (+):    " << shippingFee << " Toman" << std::endl;
     std::cout << "---------------------" << std::endl;
     std::cout << "TOTAL PAYABLE:       " << totalAmount << " Toman" << std::endl;

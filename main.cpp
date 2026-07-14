@@ -20,7 +20,7 @@ using namespace std;
 int main() {
     
     srand(time(0));
-    
+
     DatabaseManager dbManager;
     
     if (!dbManager.openDatabase("restaurant_system.db")) {
@@ -69,11 +69,13 @@ int main() {
                     cout << "3. Activate / Deactivate a Restaurant" << endl;
                     cout << "4. View System Reports & Analytics" << endl;
                     cout << "5. Delete a Restaurant" << endl;
-                    cout << "6. Back to Main Menu" << endl;
-                    cout << "Enter your choice (1-6): ";
+                    cout << "6. Manual Customer Loyalty Management" << endl;
+                    cout << "7. View user level logs and history" << endl;
+                    cout << "8. Back to Main Menu" << endl;
+                    cout << "Enter your choice (1-8): ";
                     cin >> adminChoice;
 
-                    if (adminChoice == 6) {
+                    if (adminChoice == 8) {
                         cout << "\nReturning to Main Menu..." << endl;
                         break;
                     }
@@ -193,8 +195,60 @@ int main() {
                             break;
                         }
 
+
+                        case 6: {
+                            int targetCustomerId;
+                            cout << "\nEnter Customer ID to manage: ";
+                            cin >> targetCustomerId;
+
+                            CustomerDAO tempCustomerDAO(db);
+                            auto cust = tempCustomerDAO.getCustomerById(targetCustomerId);
+
+                            if (cust == nullptr) {
+                                cout << " ERROR: Customer not found in the database." << endl;
+                            } else {
+                                cout << "\n--- Current Customer Status ---" << endl;
+                                cout << "Name: " << cust->getUsername() << endl;
+                                cout << "Points: " << cust->getPoints() << endl;
+                                cout << "Level: " << cust->getMembershipLevel()->getLevelName() << endl;
+                                cout << "-------------------------------" << endl;
+
+                                int newPoints;
+                                std::string newLevel;
+                                
+                                cout << "Enter new Points: ";
+                                cin >> newPoints;
+                                
+                                cout << "Enter new Level (Normal, Silver, Gold, VIP): ";
+                                cin >> newLevel;
+
+                                if (tempCustomerDAO.updateCustomerLoyalty(targetCustomerId, newPoints, newLevel)) {
+                                    cout << " SUCCESS: Customer loyalty data updated manually by Admin!" << endl;
+                                } else {
+                                    cout << " ERROR: Failed to update customer." << endl;
+                                }
+
+                                std::string oldLevel = cust->getMembershipLevel()->getLevelName();
+
+                                if (tempCustomerDAO.updateCustomerLoyalty(targetCustomerId, newPoints, newLevel)) {
+                                    if (oldLevel != newLevel) {
+                                        tempCustomerDAO.logLevelChange(targetCustomerId, oldLevel, newLevel, "Manual Update by Admin");
+                                        }
+                                    cout << " SUCCESS: Customer loyalty data updated manually!" << endl;
+                                }
+                            }
+                            break;
+                        }
+
+
+                        case 7: 
+                        {
+                            CustomerDAO tempCustomerDAO(db);
+                            tempCustomerDAO.displayLevelLogs();
+                            break;
+                        }
                         default:
-                            cout << "\n Invalid choice! Please enter a number between 1 and 6." << endl;
+                            cout << "\n Invalid choice! Please enter a number between 1 and 8." << endl;
                             break;
                     }
                 }
@@ -649,7 +703,7 @@ int main() {
                                     break;
                                 }
 
-                                case 5: { 
+                               case 5: { 
                                     auto currentItems = userCart.getorderItem();
                                     if (currentItems.empty()) {
                                         cout << " Cannot checkout an empty cart! Please add items first." << endl;
@@ -657,15 +711,59 @@ int main() {
                                     }
 
                                     double baseShippingFee = 15000.0;
-                                    currentCustomer->checkout(userCart, baseShippingFee);
 
+                                    CustomerDAO customerDAO(db);
+                                    std::vector<Coupon> myCoupons = customerDAO.getUnusedCoupons(currentCustomer->getID());
+
+                                    double appliedCouponDiscount = 0.0;
+                                    std::string usedCouponCode = "";
+
+                                    if (!myCoupons.empty()) {
+                                        cout << "\n---  Your Active Coupons ---" << endl;
+                                        for (size_t i = 0; i < myCoupons.size(); ++i) {
+                                            cout << i + 1 << ". Code: " << myCoupons[i].code 
+                                                 << " | Discount: " << myCoupons[i].discountPercent << "%" << endl;
+                                        }
+    
+                                        cout << "Would you like to apply a coupon? (y/n): ";
+                                        char applyChoice;
+                                        cin >> applyChoice;
+    
+                                        if (applyChoice == 'y' || applyChoice == 'Y') {
+                                            cout << "Enter the coupon code exactly: ";
+                                            string enteredCode;
+                                            cin >> enteredCode;
+        
+                                            bool valid = false;
+                                            for (const auto& cp : myCoupons) {
+                                                if (cp.code == enteredCode) {
+                                                    appliedCouponDiscount = cp.discountPercent;
+                                                    usedCouponCode = cp.code;
+                                                    valid = true;
+                                                    break;
+                                                }
+                                            }
+                                            if (valid) {
+                                                cout << "Coupon applied successfully!" << endl;
+                                            } else {
+                                                cout << "Invalid coupon code. Proceeding without coupon." << endl;
+                                            }
+                                        }
+                                    }
+
+                                    // ابتدا از کاربر می‌پرسیم که آیا می‌خواهد تسویه حساب کند یا خیر
                                     char checkoutChoice;
-                                    cout << "Are you sure you want to place this order for $" << userCart.gettotalAmount() << "? (y/n): ";
+                                    cout << "\nAre you sure you want to proceed to checkout? (y/n): ";
                                     cin >> checkoutChoice;
 
                                     if (checkoutChoice == 'y' || checkoutChoice == 'Y') {
-                                        int newOrderId = rand() % 90000 + 10000; 
+                                        
+                                        std::string oldLvlName = currentCustomer->getMembershipLevel()->getLevelName();
 
+                                        // محاسبه نهایی، چاپ فاکتور و دادن امتیازات در حافظه
+                                        currentCustomer->checkout(userCart, baseShippingFee, appliedCouponDiscount); 
+
+                                        int newOrderId = rand() % 90000 + 10000; 
                                         auto newOrder = std::make_shared<order>(
                                             newOrderId, 
                                             OrderStatus::Preparing, 
@@ -674,28 +772,38 @@ int main() {
                                             userCart.gettotalAmount()
                                         );
 
-                                        if (orderDAO.insertOrder(newOrder ,currentCustomer->getID())) {
+                                        // اگر سفارش با موفقیت در دیتابیس ثبت شد، حالا تغییرات جانبی را اعمال می‌کنیم
+                                        if (orderDAO.insertOrder(newOrder, currentCustomer->getID())) {
                                             cout << "\n SUCCESS: Order placed successfully!" << endl;
                                             cout << ">> YOUR ORDER ID: #" << newOrderId << endl;
                                             cout << ">> CURRENT STATUS: Preparing" << endl;
-                                            userCart.clearcart(); 
-                                        
-                                            CustomerDAO customerDAO(db);
-                                            customerDAO.updateCustomerLoyalty(
-                                            currentCustomer->getID(), 
-                                            currentCustomer->getPoints(), 
-                                            currentCustomer->getMembershipLevel()->getLevelName()
-                                            );
+                                            
+                                            // باطل کردن کوپنی که استفاده شده
+                                            if (!usedCouponCode.empty()) {
+                                                customerDAO.markCouponAsUsed(currentCustomer->getID(), usedCouponCode);
+                                            }
+
+                                            // آپدیت کردن سطح و امتیاز کاربر در دیتابیس
+                                            std::string newLvlName = currentCustomer->getMembershipLevel()->getLevelName();
+                                            customerDAO.updateCustomerLoyalty(currentCustomer->getID(), currentCustomer->getPoints(), newLvlName);
+
+                                            // اهدای کوپن در صورت ارتقای سطح
+                                            if (oldLvlName != newLvlName && newLvlName != "Normal") {
+                                                customerDAO.generateCouponsForUser(currentCustomer->getID(), newLvlName);
+                                                cout << "\nCONGRATULATIONS! You unlocked " << newLvlName 
+                                                     << " level. Smart Coupons have been added to your profile! \n" << endl;
+                                            }
 
                                             userCart.clearcart(); 
                                             resMenuChoice = 6;
                                         } else {
                                             cout << " ERROR: Failed to save order." << endl;
                                         }
+                                    } else {
+                                        cout << "\nCheckout cancelled. Returning to menu..." << endl;
                                     }
                                     break;
                                 }
-
                                 default:
                                     cout << "\n Invalid choice!" << endl;
                                     break;

@@ -7,7 +7,8 @@
 #include <vector>
 #include <memory>
 
-class DatabaseManager {
+class DatabaseManager 
+{
 private:
     sqlite3* db;
     bool executeSQL(const std::string& sql);

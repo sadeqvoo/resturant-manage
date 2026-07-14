@@ -78,6 +78,27 @@ void DatabaseManager::createTables() {
         "points INTEGER DEFAULT 0, "        
         "current_level TEXT DEFAULT 'Normal');"; 
 
+        std::string sql_level_logs = 
+        "CREATE TABLE IF NOT EXISTS level_logs ("
+        "log_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+        "customer_id INTEGER, "
+        "old_level TEXT, "
+        "new_level TEXT, "
+        "change_date DATETIME DEFAULT CURRENT_TIMESTAMP, "
+        "reason TEXT, "
+        "FOREIGN KEY(customer_id) REFERENCES customers(id));";
+
+
+        std::string sql_coupons = 
+        "CREATE TABLE IF NOT EXISTS coupons ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+        "customer_id INTEGER, "
+        "code TEXT NOT NULL, "
+        "discount_percent REAL, "
+        "is_used INTEGER DEFAULT 0, "
+        "FOREIGN KEY(customer_id) REFERENCES customers(id));";
+
+    
     
     int exit = sqlite3_exec(db, sql_restaurants.c_str(), NULL, 0, &messageError);
     if (exit != SQLITE_OK) {
@@ -108,6 +129,19 @@ void DatabaseManager::createTables() {
         std::cerr << "Error Create Restaurants Table: " << messageError << std::endl;
         sqlite3_free(messageError);
     }
+
+    exit = sqlite3_exec(db, sql_level_logs.c_str(), NULL, 0, &messageError);
+    if (exit != SQLITE_OK) {
+        std::cerr << "Error Create level_logs Table: " << messageError << std::endl;
+        sqlite3_free(messageError);
+    }
+
+    exit = sqlite3_exec(db, sql_coupons.c_str(), NULL, 0, &messageError);
+    if (exit != SQLITE_OK) {
+        std::cerr << "Error Create Coupons Table: " << messageError << std::endl;
+        sqlite3_free(messageError);
+    }
+
 
 
     std::cout << "All Tables Checked/Created successfully!" << std::endl;

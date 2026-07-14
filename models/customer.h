@@ -36,8 +36,10 @@ class customer : public user
     std::shared_ptr<MembershipLevel> getMembershipLevel() const { return levelStrategy ; }
     int getID() const { return id; }
     std::string getUsername() const {return username ;}
+
+    std::vector<std::string> getBadges() const;
     
-    void checkout(const cart& activeCart, double baseShippingFee);
+    void checkout(const cart& activeCart, double baseShippingFee , double couponDiscountPercent = 0.0);
     void addOrderToHistory(const order& newOrder);
     void displayOrderHistory() const;
     void displayProfile() const;

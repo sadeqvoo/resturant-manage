@@ -21,6 +21,8 @@ class order
     cart orderItem ;
     double totalAmount ;
 
+    int orderHour;
+
     public:
     order(int ID1 , OrderStatus status1,int restaurantID1 , cart orderItem1 , double totalAmount1) ;
     ~order() = default ;
@@ -32,6 +34,10 @@ class order
     double gettotalAmount() const {return totalAmount ;}
      cart & getorderItem () {return orderItem ;} 
     const cart & getorderItem () const {return orderItem ;} 
+
+    int getOrderHour() const { return orderHour; }
+    void setOrderHour(int hour) { orderHour = hour; }
+
 
     void displayOrderDetails() const ;
 
