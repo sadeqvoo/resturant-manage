@@ -560,6 +560,12 @@ int main() {
                     }
                 }
 
+                OrderDAO orderDAO(db);
+                std::vector<std::shared_ptr<order>> myOrders = orderDAO.getAllOrdersForCustomer(currentCustomer->getID());
+                for (const auto& ord : myOrders) {
+                    currentCustomer->addOrderToHistory(*ord);
+                }
+
                 currentCustomer->displayProfile();
 
 

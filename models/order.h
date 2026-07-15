@@ -21,10 +21,9 @@ class order
     cart orderItem ;
     double totalAmount ;
 
-    int orderHour;
-
+    std::string orderDateStr;
     public:
-    order(int ID1 , OrderStatus status1,int restaurantID1 , cart orderItem1 , double totalAmount1) ;
+    order(int ID1 , OrderStatus status1,int restaurantID1 , cart orderItem1 , double totalAmount1 , std::string dateStr = "") ;
     ~order() = default ;
 
     int getID() const {return ID ;}
@@ -35,8 +34,7 @@ class order
      cart & getorderItem () {return orderItem ;} 
     const cart & getorderItem () const {return orderItem ;} 
 
-    int getOrderHour() const { return orderHour; }
-    void setOrderHour(int hour) { orderHour = hour; }
+    std::string getOrderDateStr() const { return orderDateStr; }
 
 
     void displayOrderDetails() const ;

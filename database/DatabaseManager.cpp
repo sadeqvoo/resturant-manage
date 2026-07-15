@@ -61,6 +61,7 @@ void DatabaseManager::createTables() {
         "restaurant_id INTEGER, "
         "total_amount REAL, "
         "status INTEGER,"
+        "order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
         "FOREIGN KEY(customer_id) REFERENCES customers(id));";
 
     std::string sql_order_items = 

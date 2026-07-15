@@ -38,29 +38,30 @@ std::vector<std::string> customer::getBadges() const
 {
     std::vector<std::string> badges;
 
-    // ۱. نشان خریدار متوالی (Frequent Buyer)
-    // اگر تعداد کل سفارشات کاربر ۵ یا بیشتر باشد
+    
     if (orderHistory.size() >= 5) {
         badges.push_back("Frequent Buyer");
     }
 
-    // ۲. نشان مشتری شب‌زنده‌دار (Night Customer)
-    // فرض می‌کنیم کلاس order متدی به نام getOrderHour() دارد که ساعت ثبت سفارش را برمی‌گرداند.
-    // (اگر این متد هنوز در order پیاده‌سازی نشده، کمی پایین‌تر راهکار ساده آن را نوشته‌ام)
+    
     bool hasNightOrder = false;
     for (const auto& ord : orderHistory) {
-        // فرض: ساعت سفارش بین ۲۳ شب تا ۴ صبح باشد
-        int hr = ord.getOrderHour(); 
-        if (hr >= 23 || hr < 4) {
-            hasNightOrder = true;
-            break;
+        std::string dateStr = ord.getOrderDateStr(); 
+        
+        if (dateStr.length() >= 13) { 
+            std::string hourStr = dateStr.substr(11, 2); 
+            int hr = std::stoi(hourStr);
+            
+            if (hr >= 23 || hr < 4) {
+                hasNightOrder = true;
+                break;
+            }
         }
     }
 
     if (hasNightOrder) {
-        badges.push_back("Night Owl");
+        badges.push_back("Night Owl  (Night-time Order Placed)");
     }
-
     return badges;
 }
 

@@ -1,8 +1,8 @@
 #include "order.h"
 #include <iostream>
 
-order::order(int ID1 , OrderStatus status1 , int restaurantID1 , cart orderItem1 , double totalAmount1) :
-ID(ID1) , status(status1) ,restaurantID(restaurantID1), orderItem(orderItem1) , totalAmount(totalAmount1) {}
+order::order(int ID1 , OrderStatus status1 , int restaurantID1 , cart orderItem1 , double totalAmount1 , std::string dateStr ) :
+ID(ID1) , status(status1) ,restaurantID(restaurantID1), orderItem(orderItem1) , totalAmount(totalAmount1) , orderDateStr(dateStr) {}
 
 std::string order::getStatusString() const
 {

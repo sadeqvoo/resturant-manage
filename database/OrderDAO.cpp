@@ -10,7 +10,7 @@ static int mainOrderCallback(void* data, int argc, char** argv, char** azColName
     int restaurantID = 0;
     double totalAmount = 0.0;
     int status = 0;
-    
+    std::string orderDate = "";
 
     for (int i = 0; i < argc; i++) {
         if (argv[i] == nullptr) continue;
@@ -28,10 +28,13 @@ static int mainOrderCallback(void* data, int argc, char** argv, char** azColName
         else if (colName == "status") {
             status = std::stoi(argv[i]);
         }
+        else if (colName == "order_date") { 
+            orderDate = argv[i];
+        }
         
     }
 
-    auto newOrder = std::make_shared<order>(orderID, static_cast<OrderStatus>(status), restaurantID, cart{}, totalAmount);
+    auto newOrder = std::make_shared<order>(orderID, static_cast<OrderStatus>(status), restaurantID, cart{}, totalAmount , orderDate);
     ordersList->push_back(newOrder);
 
     return 0;
@@ -97,12 +100,19 @@ bool OrderDAO::updateOrderStatus(int orderID, int newStatus) {
                       " WHERE order_id = " + std::to_string(orderID) + ";";
 
     int exit = sqlite3_exec(db, sql.c_str(), NULL, 0, &messageError);
-    
+
+     int rowsAffected = sqlite3_changes(db);
     if (exit != SQLITE_OK) {
         std::cerr << "Error Update Order Status: " << messageError << std::endl;
         sqlite3_free(messageError);
         return false;
-    } else {
+    }
+    else if (rowsAffected == 0) 
+    {
+        return false; 
+    } 
+    else 
+    {
         std::cout << "Order status updated to " << newStatus << "!" << std::endl;
         return true;
     }
@@ -141,8 +151,7 @@ std::vector<std::shared_ptr<order>> OrderDAO::getAllOrdersForCustomer(int custom
     std::vector<std::shared_ptr<order>> ordersList;
     char* messageError = nullptr;
 
-    std::string sql_select_all = "SELECT * FROM orders WHERE customer_id =" + std::to_string(customerId) + ";";
-
+    std::string sql_select_all = "SELECT * FROM orders WHERE customer_id =" + std::to_string(customerId) + " ORDER BY order_date ASC;";
     int exit = sqlite3_exec(db, sql_select_all.c_str(), mainOrderCallback, &ordersList, &messageError);
 
     if (exit != SQLITE_OK) {
