@@ -39,7 +39,7 @@ class customer : public user
 
     std::vector<std::string> getBadges() const;
     
-    void checkout(const cart& activeCart, double baseShippingFee , double couponDiscountPercent = 0.0);
+    double checkout(const cart& activeCart, double baseShippingFee , double couponDiscountPercent = 0.0);
     void addOrderToHistory(const order& newOrder);
     void displayOrderHistory() const;
     void displayProfile() const;

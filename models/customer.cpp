@@ -114,13 +114,13 @@ void customer::checkLevelUpgrade()
     }
 }
 
-void customer::checkout(const cart& activeCart, double baseShippingFee , double couponDiscountPercent ) 
+double customer::checkout(const cart& activeCart, double baseShippingFee , double couponDiscountPercent ) 
 {
     double basePrice = activeCart.gettotalAmount(); 
     
     if (basePrice == 0) {
         std::cout << "Your cart is empty! Cannot proceed to checkout.\n" << std::endl;
-        return;
+        return 0.0;
     }
 
     double discount = levelStrategy->calculateDiscount(basePrice);
@@ -132,12 +132,10 @@ void customer::checkout(const cart& activeCart, double baseShippingFee , double 
     }
 
     double shippingFee = levelStrategy->calculateShippingFee(baseShippingFee);
-    double totalAmount = basePrice - discount + shippingFee;
+    double totalAmount = basePrice - discount - couponDiscount + shippingFee;
     int pointsEarned = levelStrategy->calculatePointsEarned(totalAmount);
 
-    this->points += pointsEarned;
-
-    this->checkLevelUpgrade();
+    
 
     std::cout << "\n--- FINAL INVOICE ---" << std::endl;
     std::cout << "Base Price:          " << basePrice << " Toman" << std::endl;
@@ -151,6 +149,11 @@ void customer::checkout(const cart& activeCart, double baseShippingFee , double 
     std::cout << "TOTAL PAYABLE:       " << totalAmount << " Toman" << std::endl;
     std::cout << "Reward Points:       +" << pointsEarned << " points" << std::endl;
     std::cout << "---------------------\n" << std::endl;
+
+    this->points += pointsEarned;
+
+    this->checkLevelUpgrade();
+    return totalAmount;
 }
 
 void customer::displaymeno() {

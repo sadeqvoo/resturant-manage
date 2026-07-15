@@ -730,71 +730,110 @@ int main() {
                                             cout << i + 1 << ". Code: " << myCoupons[i].code 
                                                  << " | Discount: " << myCoupons[i].discountPercent << "%" << endl;
                                         }
-    
-                                        cout << "Would you like to apply a coupon? (y/n): ";
-                                        char applyChoice;
-                                        cin >> applyChoice;
-    
-                                        if (applyChoice == 'y' || applyChoice == 'Y') {
-                                            cout << "Enter the coupon code exactly: ";
-                                            string enteredCode;
-                                            cin >> enteredCode;
+
+                                        string applyChoice;
+                                        bool flag = true ;
+
+                                        while (flag)
+                                        {
+                                            cout << "Would you like to apply a coupon? (y/n): ";
+                                            cin >> applyChoice;
+                                        
+                                            if (applyChoice == "y" || applyChoice == "Y") 
+                                            {
+                                                cout << "Enter the coupon code exactly: ";
+                                                string enteredCode;
+                                                cin >> enteredCode;
         
-                                            bool valid = false;
-                                            for (const auto& cp : myCoupons) {
-                                                if (cp.code == enteredCode) {
-                                                    appliedCouponDiscount = cp.discountPercent;
-                                                    usedCouponCode = cp.code;
-                                                    valid = true;
-                                                    break;
+                                                bool valid = false;
+                                                for (const auto& cp : myCoupons) {
+                                                    if (cp.code == enteredCode) {
+                                                        appliedCouponDiscount = cp.discountPercent;
+                                                        usedCouponCode = cp.code;
+                                                        valid = true;
+                                                        break;
+                                                    }
+                                                }
+                                                if (valid) 
+                                                {
+                                                    cout << "Coupon applied successfully!" << endl;
+                                                    flag = false ;
+                                                } 
+                                                else 
+                                                {
+                                                    cout << "Invalid coupon code. Proceeding without coupon." << endl;
                                                 }
                                             }
-                                            if (valid) {
-                                                cout << "Coupon applied successfully!" << endl;
-                                            } else {
-                                                cout << "Invalid coupon code. Proceeding without coupon." << endl;
+                                            else if (applyChoice == "n" || applyChoice == "N")
+                                            {
+                                                flag = false ;
+                                            }
+                                            else
+                                            {
+                                                cout << "Your answer is incorrect." ;  
                                             }
                                         }
+                                        
+                                            
                                     }
 
-                                    // ابتدا از کاربر می‌پرسیم که آیا می‌خواهد تسویه حساب کند یا خیر
                                     char checkoutChoice;
                                     cout << "\nAre you sure you want to proceed to checkout? (y/n): ";
                                     cin >> checkoutChoice;
 
-                                    if (checkoutChoice == 'y' || checkoutChoice == 'Y') {
+                                    if (checkoutChoice == 'y' || checkoutChoice == 'Y') 
+                                    {
                                         
                                         std::string oldLvlName = currentCustomer->getMembershipLevel()->getLevelName();
 
-                                        // محاسبه نهایی، چاپ فاکتور و دادن امتیازات در حافظه
-                                        currentCustomer->checkout(userCart, baseShippingFee, appliedCouponDiscount); 
+                                        double actualPaidAmount = currentCustomer->checkout(userCart, baseShippingFee, appliedCouponDiscount); 
+
+                                        std::string newLevelName = currentCustomer->getMembershipLevel()->getLevelName();
+                                        int newPoints = currentCustomer->getPoints();
+
+                                        auto oldDbCustomer = customerDAO.getCustomerById(currentCustomer->getID());
+                                        std::string oldLevelName = oldDbCustomer->getMembershipLevel()->getLevelName();
+
+                                        customerDAO.updateCustomerLoyalty(currentCustomer->getID(), newPoints, newLevelName);
+
+                                        if (oldLevelName != newLevelName) 
+                                        {
+                                            std::string logReason = "Automatic upgrade/downgrade based on points after purchase.";
+                                            customerDAO.logLevelChange(currentCustomer->getID(), oldLevelName, newLevelName, logReason);
+                                            cout << "CONGRATS! Your membership level upgraded to " << newLevelName << "!" << endl;
+                                            }
+
+                                        if (!usedCouponCode.empty()) 
+                                        {
+                                            customerDAO.markCouponAsUsed(currentCustomer->getID(), usedCouponCode);
+                                        }
 
                                         int newOrderId = rand() % 90000 + 10000; 
-                                        auto newOrder = std::make_shared<order>(
+                                        auto newOrder = std::make_shared<order>
+                                        (
                                             newOrderId, 
                                             OrderStatus::Preparing, 
                                             selectedRestaurantId,
                                             userCart, 
-                                            userCart.gettotalAmount()
+                                            actualPaidAmount
                                         );
 
-                                        // اگر سفارش با موفقیت در دیتابیس ثبت شد، حالا تغییرات جانبی را اعمال می‌کنیم
-                                        if (orderDAO.insertOrder(newOrder, currentCustomer->getID())) {
+                                        if (orderDAO.insertOrder(newOrder, currentCustomer->getID())) 
+                                        {
                                             cout << "\n SUCCESS: Order placed successfully!" << endl;
                                             cout << ">> YOUR ORDER ID: #" << newOrderId << endl;
                                             cout << ">> CURRENT STATUS: Preparing" << endl;
                                             
-                                            // باطل کردن کوپنی که استفاده شده
-                                            if (!usedCouponCode.empty()) {
+                                            if (!usedCouponCode.empty()) 
+                                            {
                                                 customerDAO.markCouponAsUsed(currentCustomer->getID(), usedCouponCode);
                                             }
 
-                                            // آپدیت کردن سطح و امتیاز کاربر در دیتابیس
                                             std::string newLvlName = currentCustomer->getMembershipLevel()->getLevelName();
                                             customerDAO.updateCustomerLoyalty(currentCustomer->getID(), currentCustomer->getPoints(), newLvlName);
 
-                                            // اهدای کوپن در صورت ارتقای سطح
-                                            if (oldLvlName != newLvlName && newLvlName != "Normal") {
+                                            if (oldLvlName != newLvlName && newLvlName != "Normal") 
+                                            {
                                                 customerDAO.generateCouponsForUser(currentCustomer->getID(), newLvlName);
                                                 cout << "\nCONGRATULATIONS! You unlocked " << newLvlName 
                                                      << " level. Smart Coupons have been added to your profile! \n" << endl;
